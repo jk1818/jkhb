@@ -1,0 +1,50 @@
+name: zubo2
+
+on:
+  schedule:
+    - cron: '30 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0   
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: 获取组播源
+        run: |
+          cd $GITHUB_WORKSPACE
+          python ./zubo2.py
+          
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y yt-dlp sed nmap
+        
+      - name: 合并组播源
+        run: |
+          cd $GITHUB_WORKSPACE
+          cat zubo.txt > zubo_备份.txt
+          cat 组播_湖北.txt 组播_四川.txt lv/zblive.txt > zubo.txt
+          
+      - name: 更新组播源
+        run: |
+          git pull
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "更新组播源"
+          git push
