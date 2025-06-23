@@ -67,13 +67,13 @@ def multicast_province(config_file):
         all_ip_ports.extend(scan_ip_port(ip, port, url_end))
     all_ip_ports = sorted(set(all_ip_ports))
     print(f"\n{province} 扫描完成，获取有效ip_port共：{len(all_ip_ports)}个\n{all_ip_ports}\n")
-    with open(f"ip/{province}_ip.txt", 'w', encoding='utf-8') as f:
+    with open(f"data/{province}_ip.txt", 'w', encoding='utf-8') as f:
         f.write('\n'.join(all_ip_ports))    #有效ip_port写入文件
     template_file = os.path.join('template', f"template_{province}.txt")
     if not os.path.exists(template_file):
         print(f"缺少模板文件: {template_file}")
         return        
-    with open(f"ip/{province}_ip.txt", 'r', encoding='utf-8') as f:    
+    with open(f"data/{province}_ip.txt", 'r', encoding='utf-8') as f:    
         for line_num, line in enumerate(f, 1):
             ip = line.strip()
             with open(template_file, 'r', encoding='utf-8') as t, open(f"组播_{province}.txt", 'a', encoding='utf-8') as output:
