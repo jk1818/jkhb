@@ -23,6 +23,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
+      - name: Multicast Source
+        run: |
+          cd $GITHUB_WORKSPACE
+          python running/runzb.py         
           
       - name: Checkout target repository
         uses: actions/checkout@v3
