@@ -2,7 +2,7 @@ name: PIM Routing Updates
 
 on:
   schedule:
-    - cron: '30 8 * * *'
+    - cron: '10 2,9 * * *'
   workflow_dispatch:
 
 jobs:
@@ -24,12 +24,12 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: 获取组播源
+      - name: Multicast Source
         run: |
           cd $GITHUB_WORKSPACE
           python ./runzb.py         
           
-    - name: 推送文件到目标仓库
+    - name: Send files to the target repo
       run: |
         pip install PyGithub
 
@@ -45,7 +45,7 @@ jobs:
         cp ../组播_*.txt zubo/
 
         if [ -z "$(git status --porcelain)" ]; then
-          echo "没有检测到文件变更，跳过提交"
+          echo "No file changes detected. Commit skipped"
           exit 0
         fi
 
