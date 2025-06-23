@@ -27,7 +27,7 @@ jobs:
       - name: Multicast Source
         run: |
           cd $GITHUB_WORKSPACE
-          python ./runzb.py         
+          python running/runzb.py         
           
       - name: Send files to the target repo
         run: |
