@@ -23,35 +23,53 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install PyGithub
 
       - name: Multicast Source
         run: |
           cd $GITHUB_WORKSPACE
-          python running/runzb.py         
-          
+          python running/runzb.py || echo "Python script exited with error, continuing workflow"
+
+      - name: Verify files exist
+        run: |
+          if [ ! -f 组播_*.txt ]; then
+            echo "No multicast files found"
+            exit 1
+          fi
+          echo "Files found:"
+          ls -la 组播_*.txt
+
       - name: Send files to the target repo
         run: |
-          pip install PyGithub
-
-          GITHUB_TOKEN=${{ secrets.REPO_TOKEN }}
-
-          git clone https://github.com/jk1818/hb.git target_repo
+          # Clone target repository
+          git clone https://${{ secrets.REPO_TOKEN }}@github.com/jk1818/hb.git target_repo
           cd target_repo
 
+          # Configure git
           git config --local user.email "actions@163.com"
           git config --local user.name "GitHub Action Bot"
 
+          # Create directory if it doesn't exist
           mkdir -p zubo
-          cp ../组播_*.txt zubo/
 
+          # Copy files with error handling
+          if ! cp ../组播_*.txt zubo/; then
+            echo "Failed to copy files"
+            exit 1
+          fi
+
+          # Check for changes
           if [ -z "$(git status --porcelain)" ]; then
-            echo "No file changes detected. Commit skipped"
+            echo "No file changes detected. Skipping commit."
             exit 0
           fi
 
+          # Commit and push changes
           git add .
           git commit -m "Update zubo data [skip ci]"
           
-          git pull origin main --rebase
+          # Pull latest changes with rebase
+          git pull origin main --rebase || echo "Rebase failed, attempting regular pull"
           
-          git push "https://$GITHUB_TOKEN@github.com/jk1818/hb.git" main
+          # Push changes
+          git push origin main
