@@ -27,18 +27,7 @@ jobs:
       - name: 获取组播源
         run: |
           cd $GITHUB_WORKSPACE
-          python ./zubo2.py
-          
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y yt-dlp sed nmap
-        
-      - name: 合并组播源
-        run: |
-          cd $GITHUB_WORKSPACE
-          cat zubo.txt > zubo_备份.txt
-          cat 组播_湖北.txt 组播_四川.txt lv/zblive.txt > zubo.txt
+          python ./runzb.py         
           
       - name: 更新组播源
         run: |
