@@ -24,29 +24,26 @@ jobs:
         run: |
           pip install -r requirements.txt
           
-      - name: Send files to the target repo
+      - name: Checkout target repository
+        uses: actions/checkout@v3
+        with:
+          repository: jk1818/hb
+          token: ${{ secrets.REPO_TOKEN }}
+          path: target-repo
+
+      - name: Copy TXT files to target repository
         run: |
-          pip install PyGithub
+          # Create lv directory if it doesn't exist
+          mkdir -p target-repo/zubo
+          # Copy all txt files from source to target
+          cp -r $GITHUB_WORKSPACE/组播_*.txt target-repo/zubo/
+          echo "Files copied to target repository"
 
-          GITHUB_TOKEN=${{ secrets.REPO_TOKEN }}
-
-          git clone https://github.com/jk1818/hb.git target_repo
-          cd target_repo
-
-          git config --local user.email "actions@163.com"
-          git config --local user.name "GitHub Action Bot"
-
-          mkdir -p zubo
-          cp 组播_*.txt zubo/
-
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No file changes detected. Commit skipped"
-            exit 0
-          fi
-
-          git add .
-          git commit -m "Update zubo data [skip ci]"
-          
-          git pull origin main --rebase
-          
-          git push "https://$GITHUB_TOKEN@github.com/jk1818/hb.git" main
+      - name: Commit and push to target repository
+        run: |
+          cd target-repo
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add zubo/
+          git commit -m "Update multicast source files"
+          git push
