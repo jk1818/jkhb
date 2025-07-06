@@ -2,19 +2,18 @@ name: PIM Routing Updates
 
 on:
   schedule:
-    - cron: '10 2,9 * * *'
+    - cron: '10 5,12 * * *'
   workflow_dispatch:
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # 添加超时设置
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0   
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -23,13 +22,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Multicast Source
         run: |
           cd $GITHUB_WORKSPACE
-          python running/runzb.py
+          python running/runzb.py         
           
       - name: Checkout target repository
         uses: actions/checkout@v3
@@ -37,9 +35,6 @@ jobs:
           repository: jk1818/hb
           token: ${{ secrets.REPO_TOKEN }}
           path: target-repo
-          # 添加重试逻辑
-          retries: 3
-          retry-wait: 5000
 
       - name: Copy TXT files to target repository
         run: |
@@ -55,5 +50,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add zubo/
-          git diff-index --quiet HEAD || git commit -m "Update multicast source files [skip ci]"
+          git commit -m "Update multicast source files"
           git push
